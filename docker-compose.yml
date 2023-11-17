@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+
+  json-file-viewer:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    image: conflabs/json-file-viewer:latest
+    container_name: json-file-viewer
+    restart: unless-stopped
+    networks:
+      - frontend
+    ports:
+      - "80:80"
+    volumes:
+        - ./:/var/www/html
+    environment:
+      TZ: "America/Los_Angeles"
+
+networks:
+  frontend:
+    name: frontend
