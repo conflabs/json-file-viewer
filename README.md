@@ -1,5 +1,5 @@
 # json-file-viewer
-A simple app to display text files containing JSON data in a machine readable format.
+A simple app to display text file links from Google Drive containing JSON data in a machine readable format.
 
 ## Getting Started
 
