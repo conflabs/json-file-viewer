@@ -3,9 +3,9 @@ A simple app to display text file links from Google Drive containing JSON data i
 
 ## Getting Started
 
-Add the following pre-text to your google links: `https://jsonlinks.conflabs.com/?url=`
+Add the following pre-text to your google links: `http://localhost/?url=`
 
-Example: https://jsonlinks.conflabs.com/?url=https://drive.google.com/file/d/{FILE_ID}/view
+Example: http://localhost/?url=https://drive.google.com/file/d/{FILE_ID}/view
 
 This is the link you will send customers.
 
