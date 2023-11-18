@@ -5,9 +5,29 @@
     <div class="pl-row">
         <div class="pl-col">
             <h1>Google Drive Link to Json Link App</h1>
-
             <h4>A single point API for viewing true JSON datatypes.</h4>
-
+        </div>
+    </div>
+    <div class="pl-row">
+        <div class="pl-col">
+            <br>
+            <div style="font-weight: bold;">
+                This app explained:
+            </div>
+            <br>
+            <div>
+                When you use a "/view" link for a document file type on Google Drive, the link returns a "human readable"
+                version of the document. If the document contains a JSON object, curling the link will not return the object,
+                but rather an HTML document containing uglified javascript. That code, when viewed in a browser, renders
+                a view that looks like text on a page (or a Google Doc).
+            </div>
+            <br>
+            <div>
+                Systems utilizing JSON data by way of an HTTP link are expecting a JSON object, not an HTML document.
+                By giving this hosted app such a Google Drive view URL, it will convert the link to a download/streaming
+                link, load the contents into a buffer, and return it with the necessary headers to be interpreted as a
+                json object.
+            </div>
         </div>
     </div>
 </div>
