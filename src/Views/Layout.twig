@@ -10,8 +10,33 @@
 </head>
 <body>
 
+<br><br>
+<div class="pl-container">
+
+    <div class="pl-row">
+        <div class="pl-col text-center" style="background-color: #9fc6aa">
+            <h1>Google Drive Link to Json Link App</h1>
+            <h4>A single point API for viewing true JSON datatypes.</h4>
+        </div>
+    </div>
+
     {% block content %}{% endblock %}
 
+    <div class="pl-row">
+        <div class="pl-col text-center" style="background-color: #9fc6aa">
+            <p style="font-weight: bold;">
+                Created by
+                <a href="https://www.conflabs.com" style="font-weight: bold;color: #000000;text-decoration: underline">
+                    Confidence Analytics
+                </a>
+                &heartsuit; {{ year }}
+            </p>
+        </div>
+    </div>
+
+</div>
+
     {% block js %}{% endblock %}
+
 </body>
 </html>
