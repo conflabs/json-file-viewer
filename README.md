@@ -3,9 +3,22 @@ A simple app to display text file links from Google Drive containing JSON data i
 
 ## Getting Started
 
+### Using a Google Drive File View URL
+
 Add the following pre-text to your google links: `http://localhost/?url=`
 
 Example: http://localhost/?url=https://drive.google.com/file/d/{FILE_ID}/view
+
+This is the link you will send customers.
+
+### Using a Google Drive File ID
+
+For brevity, you may want to use only the file ID. It is the last part of the URL,
+after the `/d/` and before the `/view` or `/edit` parts.
+
+Add the following pre-text to your google links: `http://localhost/?id=`
+
+Example: http://localhost/?id={FILE_ID}
 
 This is the link you will send customers.
 
