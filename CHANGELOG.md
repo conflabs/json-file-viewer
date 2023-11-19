@@ -1,6 +1,13 @@
 # CHANGELOG
 This file is used to list material changes made to this repository.
 
+
+- **2023-11-19, Version: 0.9**
+    - Added new logic to handle the `id` parameter for shorter urls.
+    - Added config info to the README file.
+    - Added code comments.
+    - Added error reporting control via the config file.
+
 - **2023-11-18, Version: 0.9**
     - Custom error pages.
     - Error handling added to controllers.
