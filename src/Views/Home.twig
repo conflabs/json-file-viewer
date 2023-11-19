@@ -41,8 +41,27 @@
             <label for="url">Enter a Google Drive view link:</label>
             <input type="text" placeholder="https://drive.google.com/file/d..." id="url" name="url" form="linkSubmit">
 
-            <button type="submit" class="pl-button full">Submit</button>
-            <button type="reset" class="pl-button full red">Clear</button>
+            <button type="submit" class="pl-button full" form="idSubmit">Submit</button>
+            <button type="reset" class="pl-button full red" form="idSubmit">Clear</button>
+
+        </form>
+
+        <br>
+        <br>
+
+    </div>
+
+    <div class="pl-col">
+
+        <h3>Try it out with just the File ID:</h3>
+
+        <form action="/" method="get" id="idSubmit" name="idSubmit">
+
+            <label for="id">Enter a Google Drive view link:</label>
+            <input type="text" placeholder="" id="id" name="id" form="idSubmit">
+
+            <button type="submit" class="pl-button full" form="idSubmit">Submit</button>
+            <button type="reset" class="pl-button full red" form="idSubmit">Clear</button>
 
         </form>
 
