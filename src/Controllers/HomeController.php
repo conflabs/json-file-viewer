@@ -109,6 +109,10 @@ final class HomeController extends Controller
             // The rest of the code in this method will only run if the buffer is not empty.
         }
 
+        // Lint the json object for empty values, and replace them with a zero.
+        // Quite specifically, this is a temporary fix to deal with empty value sets in the data.
+        $buffer = preg_replace('/"value":\s+}/', '"value": 0}', $buffer);
+
         // Return the buffer as a JSON response.
         $response = new Response($buffer, Response::HTTP_OK, ['content-type' => 'application/json']);
 
