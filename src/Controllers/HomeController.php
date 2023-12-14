@@ -112,8 +112,8 @@ final class HomeController extends Controller
         // Lint the json object for empty values, and replace them with a zero.
         // Quite specifically, this is a temporary fix to deal with empty value sets in the data.
         $buffer = preg_replace('/"value":\s+}/', '"value": 0}', $buffer);
-        // Replace string quoted nulls as plain nulls.
-        $buffer = str_replace('"null"', 'null', $buffer);
+        // Convert null strings to null values;
+//        $buffer = str_replace('"null"', 'null', $buffer);
 
         // Return the buffer as a JSON response.
         $response = new Response($buffer, Response::HTTP_OK, ['content-type' => 'application/json']);
@@ -160,6 +160,49 @@ final class HomeController extends Controller
             // The rest of the code in this method will only run if the buffer is not empty.
         }
 
+        // Convert null strings to null values;
+//        $buffer = str_replace('"null"', 'null', $buffer);
+
+        // Return the buffer as a JSON response.
+        $response = new Response($buffer, Response::HTTP_OK, ['content-type' => 'application/json']);
+        return $response->send();
+    }
+
+    public function cultivera(string $id = null): Response
+    {
+        // If there's no ID in the request...
+        if (!$id) {
+
+            // ...Form a 400 Bad Request error with useful message...
+            $response = new Response(json_encode([
+                'status' => Response::HTTP_BAD_REQUEST,
+                'message' => 'No ID found in request.'
+            ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
+
+            // ...and return it.
+            return $response->send();
+
+            // The rest of the code in this method will only run if there is an ID in the request.
+        }
+
+        // Get the file contents from Google Drive link and store in buffer.
+        $buffer = file_get_contents('https://drive.google.com/uc?export=download&id=' . $id);
+
+        // If the buffer is empty...
+        if (!$buffer) {
+
+            // ...return a 400 Bad Request error with useful message.
+            $response = new Response(json_encode([
+                'status' => Response::HTTP_BAD_REQUEST,
+                'message' => 'No data found for this URL.'
+            ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
+
+            return $response->send();
+
+            // The rest of the code in this method will only run if the buffer is not empty.
+        }
+
+        // Convert null strings to null values;
         $buffer = str_replace('"null"', 'null', $buffer);
 
         // Return the buffer as a JSON response.
