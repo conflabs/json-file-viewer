@@ -35,6 +35,16 @@ final class HomeController extends Controller
             return $this->idParameter($id);
         }
 
+        // Get the cultivera param from the request, if it exists.
+        $cultivera = $_GET['cultivera'] ?? null;
+
+        // If it does exist...
+        if ($cultivera) {
+
+            // ...return the cultivera parameter method.
+            return $this->cultiveraParameter($cultivera);
+        }
+
         // If the url and id aren't in the request, return the no parameter method.
         return $this->noParameter();
     }
@@ -168,8 +178,9 @@ final class HomeController extends Controller
         return $response->send();
     }
 
-    public function cultivera(string $id = null): Response
+    public function cultiveraParameter(string $id = null): Response
     {
+
         // If there's no ID in the request...
         if (!$id) {
 
