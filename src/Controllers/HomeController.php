@@ -45,6 +45,16 @@ final class HomeController extends Controller
             return $this->cultiveraParameter($cultivera);
         }
 
+        // Get the cultivera param from the request, if it exists.
+        $alt = $_GET['alt'] ?? null;
+
+        // If it does exist...
+        if ($alt) {
+
+            // ...return the cultivera parameter method.
+            return $this->cultiveraParameter($alt);
+        }
+
         // If the url and id aren't in the request, return the no parameter method.
         return $this->noParameter();
     }
