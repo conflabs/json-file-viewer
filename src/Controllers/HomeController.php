@@ -132,12 +132,34 @@ final class HomeController extends Controller
         // Lint the json object for empty values, and replace them with a zero.
         // Quite specifically, this is a temporary fix to deal with empty value sets in the data.
         $buffer = preg_replace('/"value":\s+}/', '"value": 0}', $buffer);
+
         // Convert null strings to null values;
 //        $buffer = str_replace('"null"', 'null', $buffer);
 
+        // Get the product_name values from the buffer object that exceed a char length of 300.
+        $productNames = array_values(array_filter(array_map(function ($invTxfrItem) {
+            if (strlen($invTxfrItem['product_name']) > 300) {
+                return $invTxfrItem['product_name'];
+            }
+            return null;
+        }, json_decode($buffer, true)['inventory_transfer_items'])));
+
+        // If there are any product_name values that exceed 300 characters...
+        if ($productNames) {
+
+            // ...return a 400 Bad Request error with useful message.
+            $response = new Response(json_encode([
+                'status' => Response::HTTP_BAD_REQUEST,
+                'message' => 'One or more product_name values exceeds 300 characters.' . PHP_EOL . json_encode($productNames),
+            ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
+
+            return $response->send();
+
+            // The rest of the code in this method will only run if the names are validated.
+        }
+
         // Return the buffer as a JSON response.
         $response = new Response($buffer, Response::HTTP_OK, ['content-type' => 'application/json']);
-
         return $response->send();
     }
 
@@ -181,7 +203,29 @@ final class HomeController extends Controller
         }
 
         // Convert null strings to null values;
-//        $buffer = str_replace('"null"', 'null', $buffer);
+        // $buffer = str_replace('"null"', 'null', $buffer);
+
+        // Get the product_name values from the buffer object that exceed a char length of 300.
+        $productNames = array_values(array_filter(array_map(function ($invTxfrItem) {
+            if (strlen($invTxfrItem['product_name']) > 300) {
+                return $invTxfrItem['product_name'];
+            }
+            return null;
+        }, json_decode($buffer, true)['inventory_transfer_items'])));
+
+        // If there are any product_name values that exceed 300 characters...
+        if ($productNames) {
+
+            // ...return a 400 Bad Request error with useful message.
+            $response = new Response(json_encode([
+                'status' => Response::HTTP_BAD_REQUEST,
+                'message' => 'One or more product_name values exceeds 300 characters.' . PHP_EOL . json_encode($productNames),
+            ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
+
+            return $response->send();
+
+            // The rest of the code in this method will only run if the names are validated.
+        }
 
         // Return the buffer as a JSON response.
         $response = new Response($buffer, Response::HTTP_OK, ['content-type' => 'application/json']);
@@ -225,6 +269,28 @@ final class HomeController extends Controller
 
         // Convert null strings to null values;
         $buffer = str_replace('"null"', 'null', $buffer);
+
+        // Get the product_name values from the buffer object that exceed a char length of 300.
+        $productNames = array_values(array_filter(array_map(function ($invTxfrItem) {
+            if (strlen($invTxfrItem['product_name']) > 300) {
+                return $invTxfrItem['product_name'];
+            }
+            return null;
+        }, json_decode($buffer, true)['inventory_transfer_items'])));
+
+        // If there are any product_name values that exceed 300 characters...
+        if ($productNames) {
+
+            // ...return a 400 Bad Request error with useful message.
+            $response = new Response(json_encode([
+                'status' => Response::HTTP_BAD_REQUEST,
+                'message' => 'One or more product_name values exceeds 300 characters.' . PHP_EOL . json_encode($productNames),
+            ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
+
+            return $response->send();
+
+            // The rest of the code in this method will only run if the names are validated.
+        }
 
         // Return the buffer as a JSON response.
         $response = new Response($buffer, Response::HTTP_OK, ['content-type' => 'application/json']);
