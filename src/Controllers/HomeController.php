@@ -2,11 +2,19 @@
 
 namespace Conflabs\JsonFileViewer\Controllers;
 
-
+use Conflabs\JsonFileViewer\Models\ParamTypes;
+use Conflabs\JsonFileViewer\Traits\GoogleDriveHelperTrait;
+use Conflabs\JsonFileViewer\Traits\ValidationHelperTrait;
 use Symfony\Component\HttpFoundation\Response;
+
 
 final class HomeController extends Controller
 {
+
+    /**
+     * Load the Helper Traits into this class.
+     */
+    use GoogleDriveHelperTrait, ValidationHelperTrait;
 
     /**
      * INDEX: This method is the primary entry point for the application; a sole route.
@@ -21,8 +29,9 @@ final class HomeController extends Controller
         // If it does exist...
         if ($url) {
 
-            // ...return the url parameter method.
-            return $this->urlParameter($url);
+            return $this->run($url, ParamTypes::URL, false);
+
+            // The rest of the code in this method will only run if there is no URL in the request.
         }
 
         // Get the id from the request, if it exists.
@@ -31,8 +40,9 @@ final class HomeController extends Controller
         // If it does exist...
         if ($id) {
 
-            // ...return the id parameter method.
-            return $this->idParameter($id);
+            return $this->run($id, ParamTypes::ID, false);
+
+            // The rest of the code in this method will only run if there is no ID in the request.
         }
 
         // Get the cultivera param from the request, if it exists.
@@ -41,18 +51,20 @@ final class HomeController extends Controller
         // If it does exist...
         if ($cultivera) {
 
-            // ...return the cultivera parameter method.
-            return $this->cultiveraParameter($cultivera);
+            return $this->run($cultivera, ParamTypes::CULTIVERA, true);
+
+            // The rest of the code in this method will only run if there is no CULTIVERA in the request.
         }
 
-        // Get the cultivera param from the request, if it exists.
+        // Get the alt param from the request, if it exists.
         $alt = $_GET['alt'] ?? null;
 
         // If it does exist...
         if ($alt) {
 
-            // ...return the cultivera parameter method.
-            return $this->cultiveraParameter($alt);
+            return $this->run($alt, ParamTypes::ALT, true);
+
+            // The rest of the code in this method will only run if there is no ALT in the request.
         }
 
         // If the url and id aren't in the request, return the no parameter method.
@@ -70,113 +82,23 @@ final class HomeController extends Controller
         return $response->send();
     }
 
-    /**
-     * @param string|null $url
-     * @return Response
-     */
-    protected function urlParameter(string $url = null): Response
-    {
-
-        // If there's no URL in the request...
-        if (!$url) {
-
-            // ...Form a 400 Bad Request error with useful message...
-            $response = new Response(json_encode([
-                'status' => Response::HTTP_BAD_REQUEST,
-                'message' => 'No URL found in request.'
-            ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
-
-            // ...and return it.
-            return $response->send();
-
-            // The rest of the code in this method will only run if there is a URL in the request.
-        }
-
-        // Check to see that it's a Google Drive URL.
-        $urlIsGoogleDrive = str_contains($url, 'https://drive.google.com/file/d/');
-
-        // If it's not a Google Drive URL...
-        if (!$urlIsGoogleDrive) {
-
-            // ...return a 400 Bad Request error with useful message.
-            $response = new Response(json_encode([
-                'status' => Response::HTTP_BAD_REQUEST,
-                'message' => 'Invalid URL in request. Must be a Google Drive URL.',
-            ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
-
-            return $response->send();
-
-            // The rest of the code in this method will only run if the URL is a Google Drive URL.
-        }
-
-        // Remove everything but the file ID from the URL.
-        $fileId = preg_replace('/\/view.*/', '', str_replace('https://drive.google.com/file/d/', '', $url));
-
-        // Get the file contents from Google Drive link and store in buffer.
-        $buffer = file_get_contents('https://drive.google.com/uc?export=download&id=' . $fileId);
-
-        // If the buffer is empty...
-        if (!$buffer) {
-
-            // ...return a 400 Bad Request error with useful message.
-            $response = new Response(json_encode([
-                'status' => Response::HTTP_BAD_REQUEST,
-                'message' => 'No data found for this URL.'
-            ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
-
-            return $response->send();
-
-            // The rest of the code in this method will only run if the buffer is not empty.
-        }
-
-        // Lint the json object for empty values, and replace them with a zero.
-        // Quite specifically, this is a temporary fix to deal with empty value sets in the data.
-        $buffer = preg_replace('/"value":\s+}/', '"value": 0}', $buffer);
-
-        // Convert null strings to null values;
-//        $buffer = str_replace('"null"', 'null', $buffer);
-
-        // Get the product_name values from the buffer object that exceed a char length of 300.
-        $productNames = array_values(array_filter(array_map(function ($invTxfrItem) {
-            if (strlen($invTxfrItem['product_name']) > 300) {
-                return $invTxfrItem['product_name'];
-            }
-            return null;
-        }, json_decode($buffer, true)['inventory_transfer_items'])));
-
-        // If there are any product_name values that exceed 300 characters...
-        if ($productNames) {
-
-            // ...return a 400 Bad Request error with useful message.
-            $response = new Response(json_encode([
-                'status' => Response::HTTP_BAD_REQUEST,
-                'message' => 'One or more product_name values exceeds 300 characters.' . PHP_EOL . json_encode($productNames),
-            ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
-
-            return $response->send();
-
-            // The rest of the code in this method will only run if the names are validated.
-        }
-
-        // Return the buffer as a JSON response.
-        $response = new Response($buffer, Response::HTTP_OK, ['content-type' => 'application/json']);
-        return $response->send();
-    }
 
     /**
-     * @param string|null $id
+     * @param string|null $param
+     * @param ParamTypes $paramType
+     * @param bool $noStringNulls
      * @return Response
      */
-    protected function idParameter(string $id = null): Response
+    protected function run(string $param = null, ParamTypes $paramType = ParamTypes::ID, bool $noStringNulls = false): Response
     {
 
         // If there's no ID in the request...
-        if (!$id) {
+        if (!$param) {
 
             // ...Form a 400 Bad Request error with useful message...
             $response = new Response(json_encode([
                 'status' => Response::HTTP_BAD_REQUEST,
-                'message' => 'No ID found in request.'
+                'message' => 'No ID, ALT, CULTIVERA, or URL param found in request.'
             ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
 
             // ...and return it.
@@ -185,8 +107,29 @@ final class HomeController extends Controller
             // The rest of the code in this method will only run if there is an ID in the request.
         }
 
+        // If the param type is URL...
+        if ($paramType == ParamTypes::URL) {
+            // Check to see that it's a Google Drive URL.
+            $urlIsGoogleDriveLink = self::isGoogleDriveLink($param);
+            // If it is a Google Drive URL...
+            if ($urlIsGoogleDriveLink) {
+                // ...Set the Param to be a File ID.
+                $param = self::getGoogleDriveFileId($param);
+            // Else
+            } else {
+                // ...form a 400 Bad Request error with useful message...
+                $response = new Response(json_encode([
+                    'status' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'Invalid URL in request. Must be a Google Drive URL.',
+                ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
+
+                // ...and return it.
+                return $response->send();
+            }
+        }
+
         // Get the file contents from Google Drive link and store in buffer.
-        $buffer = file_get_contents('https://drive.google.com/uc?export=download&id=' . $id);
+        $buffer = self::getGoogleDriveFileContentsByFileId($param);
 
         // If the buffer is empty...
         if (!$buffer) {
@@ -194,7 +137,7 @@ final class HomeController extends Controller
             // ...return a 400 Bad Request error with useful message.
             $response = new Response(json_encode([
                 'status' => Response::HTTP_BAD_REQUEST,
-                'message' => 'No data found for this URL.'
+                'message' => 'No data found for this id: ' . $param,
             ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
 
             return $response->send();
@@ -203,15 +146,10 @@ final class HomeController extends Controller
         }
 
         // Convert null strings to null values;
-        // $buffer = str_replace('"null"', 'null', $buffer);
+        $buffer = $noStringNulls ? self::validateNullStringsToValues($buffer) : $buffer;
 
         // Get the product_name values from the buffer object that exceed a char length of 300.
-        $productNames = array_values(array_filter(array_map(function ($invTxfrItem) {
-            if (strlen($invTxfrItem['product_name']) > 300) {
-                return $invTxfrItem['product_name'];
-            }
-            return null;
-        }, json_decode($buffer, true)['inventory_transfer_items'])));
+        $productNames = self::validateProductNameLengths($buffer);
 
         // If there are any product_name values that exceed 300 characters...
         if ($productNames) {
@@ -227,69 +165,21 @@ final class HomeController extends Controller
             // The rest of the code in this method will only run if the names are validated.
         }
 
-        // Return the buffer as a JSON response.
-        $response = new Response($buffer, Response::HTTP_OK, ['content-type' => 'application/json']);
-        return $response->send();
-    }
+        // Get the qty values from the buffer object that are equal to zero.
+        $productQuantities = self::validateProductQuantities($buffer);
 
-    public function cultiveraParameter(string $id = null): Response
-    {
-
-        // If there's no ID in the request...
-        if (!$id) {
-
-            // ...Form a 400 Bad Request error with useful message...
-            $response = new Response(json_encode([
-                'status' => Response::HTTP_BAD_REQUEST,
-                'message' => 'No ID found in request.'
-            ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
-
-            // ...and return it.
-            return $response->send();
-
-            // The rest of the code in this method will only run if there is an ID in the request.
-        }
-
-        // Get the file contents from Google Drive link and store in buffer.
-        $buffer = file_get_contents('https://drive.google.com/uc?export=download&id=' . $id);
-
-        // If the buffer is empty...
-        if (!$buffer) {
+        // If there are any qty values that equal zero...
+        if ($productQuantities) {
 
             // ...return a 400 Bad Request error with useful message.
             $response = new Response(json_encode([
                 'status' => Response::HTTP_BAD_REQUEST,
-                'message' => 'No data found for this URL.'
+                'message' => 'One or more qty values equals zero.' . PHP_EOL . json_encode($productQuantities),
             ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
 
             return $response->send();
 
-            // The rest of the code in this method will only run if the buffer is not empty.
-        }
-
-        // Convert null strings to null values;
-        $buffer = str_replace('"null"', 'null', $buffer);
-
-        // Get the product_name values from the buffer object that exceed a char length of 300.
-        $productNames = array_values(array_filter(array_map(function ($invTxfrItem) {
-            if (strlen($invTxfrItem['product_name']) > 300) {
-                return $invTxfrItem['product_name'];
-            }
-            return null;
-        }, json_decode($buffer, true)['inventory_transfer_items'])));
-
-        // If there are any product_name values that exceed 300 characters...
-        if ($productNames) {
-
-            // ...return a 400 Bad Request error with useful message.
-            $response = new Response(json_encode([
-                'status' => Response::HTTP_BAD_REQUEST,
-                'message' => 'One or more product_name values exceeds 300 characters.' . PHP_EOL . json_encode($productNames),
-            ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
-
-            return $response->send();
-
-            // The rest of the code in this method will only run if the names are validated.
+            // The rest of the code in this method will only run if the quantities are validated.
         }
 
         // Return the buffer as a JSON response.
