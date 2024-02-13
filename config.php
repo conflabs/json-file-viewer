@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-const APP_ENV = "development";
+const APP_ENV = "production";
 const VIEW_DEBUG = true;
 const ROOT_PATH = __DIR__;
 const CACHE_PATH = __DIR__ . '/storage/public';
