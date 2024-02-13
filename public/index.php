@@ -17,6 +17,8 @@ $appLog = (new \Conflabs\JsonFileViewer\AppLog())->log;
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
 
     $r->addRoute('GET', '/', '\Conflabs\JsonFileViewer\Controllers\HomeController/index');
+
+    $r->addRoute('GET', '/link/stats', '\Conflabs\JsonFileViewer\Controllers\StatsController/index');
 });
 
 // Fetch method and URI from server

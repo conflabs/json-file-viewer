@@ -1,0 +1,44 @@
+{% extends 'Layout.twig' %}
+
+{% block content %}
+
+    <div class="pl-row" style="background-color: #e1ffea">
+
+        <div class="pl-col">
+
+            <br>
+
+            <h1> Link Stats </h1>
+
+            <br>
+
+        </div>
+
+    </div>
+
+    <div class="pl-row">
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><h4>Link</h4></th>
+                    <th style="text-align: right;"><h4>Clicks</h4></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key,value in links %}
+                    <tr>
+                        <td style="border-bottom: black solid 2px">
+                            <a href="https://https://evergreen-links.conflabs.com/?id={{ key }}">
+                                https://https://evergreen-links.conflabs.com/?id={{ key }}
+                            </a>
+                        </td>
+                        <td style="text-align: right;border-bottom: black solid 2px">{{ value }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+{% endblock %}
