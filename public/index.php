@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 // Load config
@@ -8,6 +9,9 @@ require_once dirname(__DIR__) . '/config.php';
 // Load environment and set error reporting level
 $environment = constant('VIEW_DEBUG') ? E_ALL : 0;
 error_reporting($environment);
+
+// Load application master logger
+$appLog = (new \Conflabs\JsonFileViewer\AppLog())->log;
 
 // Load routes
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {

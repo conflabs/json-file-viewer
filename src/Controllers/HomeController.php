@@ -3,6 +3,7 @@
 namespace Conflabs\JsonFileViewer\Controllers;
 
 use Conflabs\JsonFileViewer\Models\ParamTypes;
+use Conflabs\JsonFileViewer\Stats;
 use Conflabs\JsonFileViewer\Traits\GoogleDriveHelperTrait;
 use Conflabs\JsonFileViewer\Traits\ValidationHelperTrait;
 use Symfony\Component\HttpFoundation\Response;
@@ -127,6 +128,12 @@ final class HomeController extends Controller
                 return $response->send();
             }
         }
+
+        // Log the request to the stats file.
+        $stats = new Stats();
+        $stats->clicked($param);
+        unset($stats);
+
 
         // Get the file contents from Google Drive link and store in buffer.
         $buffer = self::getGoogleDriveFileContentsByFileId($param);
