@@ -1,6 +1,11 @@
 # CHANGELOG
 This file is used to list material changes made to this repository.
 
+- **2024-02-13, Version 1.1**
+    - Logging implemented.
+    - Site statistics implemented.
+    - Error handling improved.
+
 - **2023-11-20, Version 1.0**
     - Testing complete; version bump tp production.
 
