@@ -134,9 +134,15 @@ final class HomeController extends Controller
         $stats->clicked($param);
         unset($stats);
 
-
-        // Get the file contents from Google Drive link and store in buffer.
-        $buffer = self::getGoogleDriveFileContentsByFileId($param);
+        // Check to see if the file already exists in the cache.
+        $googleDriveFileAlreadyInCache = file_exists(constant('CACHE_PATH') . '/' . $param . '.json');
+        if ($googleDriveFileAlreadyInCache) {
+            // If it does, get the file contents from the cache and store in buffer.
+            $buffer = file_get_contents(constant('CACHE_PATH') . '/' . $param . '.json');
+        } else {
+            // If it doesn't, get the file contents from Google Drive link and store in buffer.
+            $buffer = self::getGoogleDriveFileContentsByFileId($param);
+        }
 
         // If the buffer is empty...
         if (!$buffer) {
