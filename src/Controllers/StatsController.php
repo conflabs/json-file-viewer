@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace Conflabs\JsonFileViewer\Controllers;
 
 
-use Conflabs\JsonFileViewer\Traits\MultidimensionalArraySortByKeyTrait;
 use Symfony\Component\HttpFoundation\Response;
 
 class StatsController extends Controller
 {
-
-    use MultidimensionalArraySortByKeyTrait;
 
     public function index(): void
     {
