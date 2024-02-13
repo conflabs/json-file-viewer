@@ -2,6 +2,7 @@
 
 namespace Conflabs\JsonFileViewer\Controllers;
 
+use \Exception;
 use Conflabs\JsonFileViewer\Models\ParamTypes;
 use Conflabs\JsonFileViewer\Stats;
 use Conflabs\JsonFileViewer\Traits\GoogleDriveHelperTrait;
@@ -136,9 +137,38 @@ final class HomeController extends Controller
 
         // Check to see if the file already exists in the cache.
         $googleDriveFileAlreadyInCache = file_exists(constant('CACHE_PATH') . '/' . $param . '.json');
+
+        // If it does, get the file contents from the cache and store in buffer.
         if ($googleDriveFileAlreadyInCache) {
             // If it does, get the file contents from the cache and store in buffer.
             $buffer = file_get_contents(constant('CACHE_PATH') . '/' . $param . '.json');
+            try {
+
+                // Validate the JSON in the buffer.
+                if (!json_validate($buffer)) {
+                    throw new Exception('Invalid JSON in cache file.');
+                };
+            } catch (Exception $e) {
+                // Log the error.
+                $this->log->error($e->getMessage());
+                $this->log->error($e->getTraceAsString());
+
+                // If the environment is not production, echo the error and die.
+                if (constant('APP_ENV') !== 'production') {
+                    echo $e->getMessage();
+                    echo $e->getTraceAsString();
+                    die();
+                }
+
+                // ...form a 500 Internal Server error with useful message...
+                $response = new Response(json_encode([
+                    'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => 'Invalid JSON in cache file. Please request support.',
+                ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
+
+                // ...and return it.
+                return $response->send();
+            }
         } else {
             // If it doesn't, get the file contents from Google Drive link and store in buffer.
             $buffer = self::getGoogleDriveFileContentsByFileId($param);
