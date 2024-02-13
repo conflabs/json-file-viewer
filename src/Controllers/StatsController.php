@@ -34,7 +34,14 @@ class StatsController extends Controller
 
         $response = new Response($this->renderView('Stats.twig', [
             'year' => date('Y'),
-            'links' => $links
+            'links' => $links,
+            'totalLinks' => array_sum(array_values($links)),
+            'totalFiles' => count(array_values(array_filter(array_map(function ($file) {
+                if (str_ends_with($file, 'json')) {
+                    return 1;
+                }
+                return null;
+            }, scandir(constant('CACHE_PATH')))))),
         ]), Response::HTTP_OK, ['content-type' => 'text/html']);
         $response->send();
     }
