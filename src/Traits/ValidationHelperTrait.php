@@ -54,4 +54,24 @@ trait ValidationHelperTrait
     {
         return str_replace('"null"', 'null', $buffer);
     }
+
+    public static function validateJson(string $buffer): bool
+    {
+        $log = $GLOBALS['appLog'];
+
+        try {
+
+            // Validate the JSON in the buffer.
+            if (!json_validate($buffer)) {
+                throw new Exception('Invalid JSON in cache file.');
+            };
+        } catch (Exception $e) {
+            // Log the error.
+            $log->error($e->getMessage());
+            $log->error($e->getTraceAsString());
+            die();
+        }
+
+        return true;
+    }
 }
