@@ -172,6 +172,24 @@ final class HomeController extends Controller
         } else {
             // If it doesn't, get the file contents from Google Drive link and store in buffer.
             $buffer = self::getGoogleDriveFileContentsByFileId($param);
+            // Then write it to a file in the cache.
+            $filePath = constant('CACHE_PATH') . "/$param.json";
+            try {
+                file_put_contents($filePath, $buffer);
+            } catch (Exception $e) {
+                // Log the error.
+                $this->log->error($e->getMessage());
+                $this->log->error($e->getTraceAsString());
+
+                // ...form a 500 Internal Server error with useful message...
+                $response = new Response(json_encode([
+                    'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => 'Error writing to cache file. Please request support.',
+                ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
+
+                // ...and return it.
+                return $response->send();
+            }
         }
 
         // If the buffer is empty...
