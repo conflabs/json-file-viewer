@@ -32,11 +32,14 @@ trait GoogleDriveHelperTrait
      */
     public static function getGoogleDriveFileContentsByFileId(string $fileId): null|string
     {
-        $contents = file_get_contents('https://drive.google.com/uc?export=download&id=' . $fileId);
-        if (!$contents) {
+
+        try {
+            return file_get_contents('https://drive.google.com/uc?export=download&id=' . $fileId);
+        } catch (\ErrorException $e) {
+            $log = $GLOBALS['appLog'];
+            $log->error($e->getMessage());
+            $log->error($e->getTraceAsString());
             return null;
         }
-
-        return $contents;
     }
 }

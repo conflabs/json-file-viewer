@@ -22,4 +22,19 @@ class ErrorController extends Controller
 
         return $response->send();
     }
+
+    public function internalServerError(array $errorMessages = []): Response
+    {
+        $params = [
+            'year' => date('Y'),
+        ];
+
+        If ($errorMessages !== []) {
+            $params['errorMessages'] = $errorMessages;
+        }
+
+        $response = new Response($this->renderView('500.twig', $params), Response::HTTP_INTERNAL_SERVER_ERROR, ['content-type' => 'text/html']);
+
+        return $response->send();
+    }
 }
