@@ -22,12 +22,13 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th><h4>Link</h4></th>
+                    <th><h4>Link (with >2 clicks)</h4></th>
                     <th style="text-align: right;"><h4>Clicks</h4></th>
                 </tr>
             </thead>
             <tbody>
                 {% for key,value in links %}
+                    {% if value > 2 %}
                     <tr>
                         <td style="border-bottom: black solid 2px">
                             <a href="https://evergreen-links.conflabs.com/?id={{ key }}">
@@ -36,6 +37,7 @@
                         </td>
                         <td style="text-align: right;border-bottom: black solid 2px">{{ value }}</td>
                     </tr>
+                    {% endif %}
                 {% endfor %}
             </tbody>
         </table>

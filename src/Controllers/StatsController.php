@@ -5,32 +5,42 @@ declare(strict_types=1);
 namespace Conflabs\JsonFileViewer\Controllers;
 
 
+use Conflabs\JsonFileViewer\Stats;
 use Symfony\Component\HttpFoundation\Response;
 
 class StatsController extends Controller
 {
 
-    public function index(): void
+    private function links(): array
     {
 
         $filePath = constant('LOG_PATH') . '/' . 'stats.json';
 
-        $contents = json_decode(file_get_contents($filePath), true);
-
-        $links = [];
-        foreach ($contents as $key => $value) {
-            $links[$key] = $value;
+        try {
+            $contents = file_get_contents($filePath);
+        } catch (\ErrorException $e) {
+            $this->log->error("Error reading stats log file: $filePath");
+            $this->log->error($e->getMessage());
+            $this->log->error($e->getTraceAsString());
+            die();
         }
 
-        // Sort the array by values, DESC
-        uasort($links, function (mixed $a, mixed $b): int
-        {
-            if ($a == $b) {
-                return 0;
-            }
+        try {
+            $contents = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            $this->log->error("Error decoding stats log file: $filePath");
+            $this->log->error($e->getMessage());
+            $this->log->error($e->getTraceAsString());
+            die();
+        }
+    }
+    public function index(): void
+    {
 
-            return ($a > $b) ? -1 : 1;
-        });
+        $stats = new Stats();
+        $links = $stats->links();
+        unset($stats);
+
 
         $response = new Response($this->renderView('Stats.twig', [
             'year' => date('Y'),
