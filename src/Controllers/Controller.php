@@ -31,7 +31,7 @@ class Controller
             $this->log->error($e->getMessage());
             $this->log->error($e->getTraceAsString());
 
-            if (constant('APP_ENV') !== 'production') {
+            if (constant('VIEW_DEBUG')) {
                 $response = new Response(json_encode(['error' => $e->getMessage()]), Response::HTTP_INTERNAL_SERVER_ERROR, ['content-type' => 'application/json']);
                 $response->send();
             } else {

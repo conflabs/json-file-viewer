@@ -19,7 +19,7 @@ final class AppLog
             $logConfig = [
                 'log_name' => constant('LOG_NAME'),
                 'log_path' => constant('LOG_PATH') . '/' . constant('LOG_NAME').'_'.date('Y-m-d').'.log',
-                'log_level' => constant('APP_ENV') !== 'production'
+                'log_level' => constant('VIEW_DEBUG')
                     ? 'debug'
                     : 'warning',
             ];

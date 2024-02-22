@@ -154,10 +154,13 @@ final class HomeController extends Controller
                 $this->log->error($e->getTraceAsString());
 
                 // If the environment is not production, echo the error and die.
-                if (constant('APP_ENV') !== 'production') {
-                    echo $e->getMessage();
-                    echo $e->getTraceAsString();
-                    die();
+                if (constant('VIEW_DEBUG')) {
+
+                    (new ErrorController())->internalServerError([
+                        'Invalid JSON in cache file.',
+                        $e->getMessage(),
+                        $e->getTraceAsString(),
+                    ]);
                 }
 
                 // ...form a 500 Internal Server error with useful message...
@@ -174,12 +177,23 @@ final class HomeController extends Controller
             $buffer = self::getGoogleDriveFileContentsByFileId($param);
             // Then write it to a file in the cache.
             $filePath = constant('CACHE_PATH') . "/$param.json";
+
             try {
-                file_put_contents($filePath, $buffer);
+                if ($buffer !== '') {
+                    file_put_contents($filePath, $buffer);
+                }
             } catch (Exception $e) {
                 // Log the error.
                 $this->log->error($e->getMessage());
                 $this->log->error($e->getTraceAsString());
+
+                if (constant('VIEW_DEBUG')) {
+                    (new ErrorController())->internalServerError([
+                        'Error writing to cache file.',
+                        $e->getMessage(),
+                        $e->getTraceAsString(),
+                    ]);
+                }
 
                 // ...form a 500 Internal Server error with useful message...
                 $response = new Response(json_encode([
@@ -214,6 +228,8 @@ final class HomeController extends Controller
 
         // If there are any product_name values that exceed 300 characters...
         if ($productNames) {
+
+            $this->log->error('One or more product_name values exceeds 300 characters.');
 
             // ...return a 400 Bad Request error with useful message.
             $response = new Response(json_encode([
