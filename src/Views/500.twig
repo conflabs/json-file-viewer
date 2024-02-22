@@ -1,0 +1,24 @@
+{% extends 'Layout.twig' %}
+
+{% block content %}
+<div class="pl-row" style="background-color: #e1ffea">
+    <div class="pl-col">
+        <br>
+        <h3>500 Error: Internal Server Error</h3>
+        <br>
+        {% if errorMessages %}
+            {% for msg in errorMessages %}
+                <p>{{ msg }}</p><br>
+            {% endfor %}
+        {% else %}
+        <p>
+            Sorry, the server has encountered errors attempting to fulfill your request. <br>
+            You may try checking the URL later, request support from <a href="mailto::bobby@conflabs.com">SUPPORT</a>,
+            or you can simply click the link below to return home.
+        </p>
+        {% endif %}
+        <br>
+        <h4><a href="/">Go to Home Page</a></h4>
+    </div>
+</div>
+{% endblock %}
