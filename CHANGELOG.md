@@ -1,6 +1,10 @@
 # CHANGELOG
 This file is used to list material changes made to this repository.
 
+- **2024-02-26, Version 1.2**
+  - Created delete cache file option.
+  - Stopped non-valid json buffer from writing to file.
+
 - **2024-02-13, Version 1.1**
     - Logging implemented.
     - Site statistics implemented.
