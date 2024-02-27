@@ -69,6 +69,50 @@ final class HomeController extends Controller
             // The rest of the code in this method will only run if there is no ALT in the request.
         }
 
+        // Get the delete param from the request, if it exists.
+        $deleteId = $_GET['delete'] ?? null;
+
+        // If it does exist...
+        if ($deleteId) {
+            $filePath = constant('CACHE_PATH') . "/$deleteId.json";
+            if (file_exists($filePath)) {
+
+                try {
+
+                    unlink($filePath);
+                } catch (Exception $e) {
+                    // Log the error.
+                    $this->log->error($e->getMessage());
+                    $this->log->error($e->getTraceAsString());
+
+                    // If the environment is not production, return a server error.
+                    if (constant('VIEW_DEBUG')) {
+                        // ...form a 500 Internal Server error with useful message...
+                        (new ErrorController())->internalServerError([
+                            'Error deleting cache file.',
+                            $e->getMessage(),
+                            $e->getTraceAsString(),
+                        ]);
+                    }
+
+                    // ...form a 500 Internal Server error with useful message...
+                    $response = new Response(json_encode([
+                        'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                        'message' => 'Error deleting cache file. Please request support.',
+                    ]), Response::HTTP_BAD_REQUEST, ['content-type' => 'application/json']);
+
+                    // ...and return it.
+                    return $response->send();
+                }
+                // ...return a 200 OK response.
+                $response = new Response(json_encode([
+                    'status' => Response::HTTP_OK,
+                    'message' => "File in cache deleted: $deleteId.json.",
+                ]), Response::HTTP_OK, ['content-type' => 'application/json']);
+                return $response->send();
+            }
+        }
+
         // If the url and id aren't in the request, return the no parameter method.
         return $this->noParameter();
     }
